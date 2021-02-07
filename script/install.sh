@@ -19,4 +19,4 @@ set -e
 ${GOPATH:-$HOME/go}/bin/dynamic-dns-reporter ${accountId} ${apiKey}
 EOF
 
-chmod 711 /usr/local/bin/update-dns.sh
+chmod 700 /usr/local/bin/update-dns.sh
