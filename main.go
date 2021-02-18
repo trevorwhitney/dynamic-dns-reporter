@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 )
 
 func main() {
 	accountId := os.Args[1]
 	token := os.Args[2]
+	subDomain := os.Args[3]
 
 	ctx := context.Background()
 	tc := dnsimple.StaticTokenHTTPClient(ctx, token)
@@ -23,7 +25,7 @@ func main() {
 		zoneName:  "trevorwhitney.net",
 	}
 
-	updater.Update()
+	updater.Update(subDomain)
 }
 
 type Updater struct {
@@ -33,14 +35,14 @@ type Updater struct {
 	zoneName  string
 }
 
-func (u *Updater) Update() {
+func (u *Updater) Update(subDomain string) {
 	zonesResponse, err := u.client.Zones.ListRecords(u.ctx, u.accountId, u.zoneName, nil)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, zone := range zonesResponse.Data {
-		if zone.Name == "home" {
+		if zone.Name == subDomain {
 			ip := publicIp()
 			if zone.Content != ip {
 				fmt.Printf("Updating record %d %s %s %s -> %s\n", zone.ID, zone.Type, zone.Name, zone.Content, ip)

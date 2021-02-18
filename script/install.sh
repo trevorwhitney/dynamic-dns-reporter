@@ -16,7 +16,7 @@ popd > /dev/null || exit 1
 cat > /usr/local/bin/update-dns.sh <<EOF
 #!/usr/bin/env bash
 set -e
-${GOPATH:-$HOME/go}/bin/dynamic-dns-reporter ${accountId} ${apiKey}
+${GOPATH:-$HOME/go}/bin/dynamic-dns-reporter ${accountId} ${apiKey} cerebral
 EOF
 
 chmod 700 /usr/local/bin/update-dns.sh
