@@ -13,10 +13,32 @@ pushd "${project_dir}" > /dev/null || exit 1
   go install
 popd > /dev/null || exit 1
 
-cat > /usr/local/bin/update-dns.sh <<EOF
-#!/usr/bin/env bash
-set -e
-${GOPATH:-$HOME/go}/bin/dynamic-dns-reporter ${accountId} ${apiKey} cerebral
+cat > "${HOME}/.config/systemd/user/dynamicdns.timer" <<EOF
+[Unit]
+Description=Hourly Dynamic Dns Updater
+
+[Timer]
+OnCalendar=daily
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
 EOF
 
-chmod 700 /usr/local/bin/update-dns.sh
+cat > "${HOME}/.config/systemd/user/dynamicdns.service" <<EOF
+[Unit]
+Description=Dynamic Dns Updater
+Wants=dynamicdns.timer
+
+[Service]
+Type=oneshot
+ExecStart=${GOPATH:-$HOME/go}/bin/dynamic-dns-reporter ${accountId} ${apiKey} ""
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable dynamicdns.service
+systemctl --user start dynamicdns.service

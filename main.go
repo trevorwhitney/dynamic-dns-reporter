@@ -42,7 +42,7 @@ func (u *Updater) Update(subDomain string) {
 	}
 
 	for _, zone := range zonesResponse.Data {
-		if zone.Name == subDomain {
+		if zone.Type == "A" && zone.Name == subDomain {
 			ip := publicIp()
 			if zone.Content != ip {
 				fmt.Printf("Updating record %d %s %s %s -> %s\n", zone.ID, zone.Type, zone.Name, zone.Content, ip)
