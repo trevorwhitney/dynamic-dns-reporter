@@ -13,7 +13,11 @@ import (
 func main() {
 	accountId := os.Args[1]
 	token := os.Args[2]
-	subDomain := os.Args[3]
+
+	var subDomain string
+	if len(os.Args) > 3 {
+		subDomain = os.Args[3]
+	}
 
 	ctx := context.Background()
 	tc := dnsimple.StaticTokenHTTPClient(ctx, token)
@@ -42,7 +46,8 @@ func (u *Updater) Update(subDomain string) {
 	}
 
 	for _, zone := range zonesResponse.Data {
-		if zone.Type == "A" && zone.Name == subDomain {
+		if zone.Type == "A" && (zone.Name == subDomain ||
+			(subDomain == "" && zone.Name == u.zoneName)) {
 			ip := publicIp()
 			if zone.Content != ip {
 				fmt.Printf("Updating record %d %s %s %s -> %s\n", zone.ID, zone.Type, zone.Name, zone.Content, ip)
